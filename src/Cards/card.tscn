@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://drbh665g42mix"]
+
+[ext_resource type="Script" uid="uid://dc4ug1d7thutl" path="res://src/Cards/card.gd" id="1_wqfsh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wqfsh"]
+bg_color = Color(0.37688237, 0.22007677, 0.11840495, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lnp5k"]
+
+[node name="Card" type="Button" unique_id=1450170505]
+theme_override_styles/normal = SubResource("StyleBoxFlat_wqfsh")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_lnp5k")
+text = "3 DMG"
+script = ExtResource("1_wqfsh")
+
+[connection signal="button_down" from="." to="." method="_on_button_down"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

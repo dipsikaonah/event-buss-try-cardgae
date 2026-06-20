@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://besbyjeek7w80"]
+
+[ext_resource type="Script" uid="uid://c6kadkksi7i37" path="res://src/scripts/Globals/CardData.gd" id="1_itxef"]
+[ext_resource type="Script" uid="uid://b1bf7idwmna8g" path="res://src/scripts/Globals/CardEffect.gd" id="1_xo643"]
+
+[sub_resource type="Resource" id="Resource_xo643"]
+script = ExtResource("1_xo643")
+value = 5
+target = 1
+metadata/_custom_type_script = "uid://b1bf7idwmna8g"
+
+[resource]
+script = ExtResource("1_itxef")
+name = "slash"
+cost = 1
+description = "momomom"
+effects = Array[ExtResource("1_xo643")]([SubResource("Resource_xo643")])
+metadata/_custom_type_script = "uid://c6kadkksi7i37"

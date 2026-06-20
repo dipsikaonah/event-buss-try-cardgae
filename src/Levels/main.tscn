@@ -1,0 +1,288 @@
+[gd_scene format=3 uid="uid://5ff6c7niagow"]
+
+[ext_resource type="Script" uid="uid://iaxq00f7ife2" path="res://src/scripts/combat.gd" id="1_itc74"]
+[ext_resource type="Texture2D" uid="uid://0iue2ayyblri" path="res://icon.svg" id="2_b1xlc"]
+[ext_resource type="Script" uid="uid://d0x5fbi4ubm2b" path="res://src/UI/CombatEnemyBundle/scripts/enemyPanel.gd" id="2_itc74"]
+[ext_resource type="Script" uid="uid://t4uiwihl6xbv" path="res://src/UI/CombatEnemyBundle/scripts/health.gd" id="3_itc74"]
+[ext_resource type="Script" uid="uid://cfo762ntxnrbs" path="res://src/UI/CombatEnemyBundle/scripts/info.gd" id="4_yx8tt"]
+[ext_resource type="Script" uid="uid://bo676islthunl" path="res://src/Player/player.gd" id="5_itc74"]
+[ext_resource type="Script" uid="uid://cpoaumipul6ja" path="res://src/UI/CombatPlayerBundle/health.gd" id="6_uqmlq"]
+
+[sub_resource type="GDScript" id="GDScript_b1xlc"]
+resource_name = "PLAYERBUFF"
+script/source = "extends Label
+
+@onready var buffs: Node = $\"../../../../Buffs\"
+
+var Buffs: Dictionary[String, int] = {}
+
+func _ready() -> void:
+	await get_tree().get_frame()
+	EventBuss.add_ear(\"changend_buffs_player\", show_buffs)
+
+
+func show_buffs(data: Dictionary) -> void:
+	text = \"\"
+	Buffs.clear()
+	for buff in buffs.get_children():
+		var name = buff.real_name
+		if buff.stack > 0:  # Skip if stack is 0
+			Buffs[name] = Buffs.get(name, 0) + int(buff.stack)
+	for buff_name in Buffs:
+		text += str(Buffs[buff_name]) + \" \"
+		match buff_name:
+			\"strength\":
+				text += \"🦾\"
+			\"vulnerable\":
+				text += \"💔\"
+"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_itc74"]
+load_path = "res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"
+
+[sub_resource type="GDScript" id="GDScript_uqmlq"]
+resource_name = "TEMP_BUTTONS"
+script/source = "extends Panel
+@onready var combat: CanvasLayer = $\"../..\"
+
+@onready var buffs: Node = $\"../Player/Buffs\"
+const Strength = preload(\"uid://rm8yp17pfxgj\")
+const Vulnerable = preload(\"uid://cr61fd2xg8b4m\")
+
+func _on_draw_button_down() -> void:
+	combat.spawn_card(5)
+
+func _on_strength_button_down() -> void:
+	var newbuff = Strength.new() 
+	buffs.add_child(newbuff)
+	EventBuss.emit(\"changend_buffs_player\", {})
+
+func _on_voul_button_down() -> void:
+	var newbuff = Vulnerable.new() 
+	buffs.add_child(newbuff)
+	EventBuss.emit(\"changend_buffs_player\", {})
+
+func _on_end_turn_button_down() -> void:
+	EventBuss.emit(\"Player_turn_ended\", {\"turn\": combat.turn})
+"
+
+[node name="Main" type="Node" unique_id=200334610]
+
+[node name="Combat" type="CanvasLayer" parent="." unique_id=1696953323]
+script = ExtResource("1_itc74")
+
+[node name="Seene" type="Control" parent="Combat" unique_id=1360981660]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Hand" type="Panel" parent="Combat/Seene" unique_id=719787361]
+custom_minimum_size = Vector2(300, 100)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -183.98999
+offset_right = 150.0
+offset_bottom = -83.989624
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Hbox" type="HBoxContainer" parent="Combat/Seene/Hand" unique_id=1836212213]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -12.135
+offset_bottom = -12.135002
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Enemy" type="Panel" parent="Combat/Seene" unique_id=922196552]
+custom_minimum_size = Vector2(400, 150)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -131.295
+offset_right = 200.0
+offset_bottom = 18.705383
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_itc74")
+
+[node name="MarginContainer" type="MarginContainer" parent="Combat/Seene/Enemy" unique_id=1657488426]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="EnemySprite" type="TextureRect" parent="Combat/Seene/Enemy/MarginContainer" unique_id=698367014]
+modulate = Color(1, 0.47058824, 1, 1)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+texture = ExtResource("2_b1xlc")
+stretch_mode = 2
+
+[node name="Info" type="HBoxContainer" parent="Combat/Seene/Enemy/MarginContainer" unique_id=519962260]
+layout_mode = 2
+alignment = 1
+script = ExtResource("4_yx8tt")
+
+[node name="Stats" type="VBoxContainer" parent="Combat/Seene/Enemy/MarginContainer/Info" unique_id=2025801921]
+layout_mode = 2
+
+[node name="Health Label" type="Label" parent="Combat/Seene/Enemy/MarginContainer/Info/Stats" unique_id=18452146]
+layout_mode = 2
+text = "Health: "
+
+[node name="Health" type="Label" parent="Combat/Seene/Enemy/MarginContainer/Info/Stats" unique_id=2017056854]
+layout_mode = 2
+text = "40
+"
+script = ExtResource("3_itc74")
+
+[node name="Buffs" type="Label" parent="Combat/Seene/Enemy/MarginContainer/Info/Stats" unique_id=766882783]
+layout_mode = 2
+
+[node name="margin" type="Control" parent="Combat/Seene/Enemy/MarginContainer/Info" unique_id=1982899186]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="State" type="VBoxContainer" parent="Combat/Seene/Enemy/MarginContainer/Info" unique_id=104519606]
+layout_mode = 2
+
+[node name="Intent" type="Label" parent="Combat/Seene/Enemy/MarginContainer/Info/State" unique_id=1345040130]
+layout_mode = 2
+text = "Intent:"
+
+[node name="Buffs" type="Node" parent="Combat/Seene/Enemy" unique_id=2057282638]
+
+[node name="Player" type="Panel" parent="Combat/Seene" unique_id=339287657]
+custom_minimum_size = Vector2(200, 80)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 271.0
+offset_top = 78.0
+offset_right = 471.0
+offset_bottom = 158.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_itc74")
+
+[node name="MarginContainer" type="MarginContainer" parent="Combat/Seene/Player" unique_id=140248547]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Info" type="HBoxContainer" parent="Combat/Seene/Player/MarginContainer" unique_id=1261410893]
+layout_mode = 2
+alignment = 1
+
+[node name="Stats" type="VBoxContainer" parent="Combat/Seene/Player/MarginContainer/Info" unique_id=936677523]
+layout_mode = 2
+
+[node name="Health Label" type="Label" parent="Combat/Seene/Player/MarginContainer/Info/Stats" unique_id=1863537487]
+layout_mode = 2
+text = "Health: "
+
+[node name="Health" type="Label" parent="Combat/Seene/Player/MarginContainer/Info/Stats" unique_id=1323409213]
+layout_mode = 2
+text = "40"
+script = ExtResource("6_uqmlq")
+
+[node name="Buffs" type="Label" parent="Combat/Seene/Player/MarginContainer/Info/Stats" unique_id=1712609666]
+layout_mode = 2
+script = SubResource("GDScript_b1xlc")
+
+[node name="margin" type="Control" parent="Combat/Seene/Player/MarginContainer/Info" unique_id=433889309]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayerSprite" type="TextureRect" parent="Combat/Seene/Player/MarginContainer/Info" unique_id=47455066]
+modulate = Color(0.5294118, 0.7764706, 0.5411765, 1)
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = SubResource("CompressedTexture2D_itc74")
+expand_mode = 1
+
+[node name="Buffs" type="Node" parent="Combat/Seene/Player" unique_id=1902163929]
+
+[node name="temp" type="Panel" parent="Combat/Seene" unique_id=1399153310]
+layout_mode = 0
+offset_left = 144.0
+offset_top = 406.0
+offset_right = 286.0
+offset_bottom = 534.0
+script = SubResource("GDScript_uqmlq")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Combat/Seene/temp" unique_id=1213646062]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Draw" type="Button" parent="Combat/Seene/temp/VBoxContainer" unique_id=787945044]
+layout_mode = 2
+text = "Draw"
+
+[node name="Strength" type="Button" parent="Combat/Seene/temp/VBoxContainer" unique_id=1690219573]
+layout_mode = 2
+text = "+1 Strength"
+
+[node name="voul" type="Button" parent="Combat/Seene/temp/VBoxContainer" unique_id=85529257]
+layout_mode = 2
+text = "+1 Vol"
+
+[node name="End turn" type="Button" parent="Combat/Seene/temp/VBoxContainer" unique_id=1968046596]
+layout_mode = 2
+text = "End turn"
+
+[node name="Combat ended" type="Button" parent="Combat/Seene" unique_id=724102070]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Combat ended
+try again?"
+
+[connection signal="button_down" from="Combat/Seene/temp/VBoxContainer/Draw" to="Combat/Seene/temp" method="_on_draw_button_down"]
+[connection signal="button_down" from="Combat/Seene/temp/VBoxContainer/Strength" to="Combat/Seene/temp" method="_on_strength_button_down"]
+[connection signal="button_down" from="Combat/Seene/temp/VBoxContainer/voul" to="Combat/Seene/temp" method="_on_voul_button_down"]
+[connection signal="button_down" from="Combat/Seene/temp/VBoxContainer/End turn" to="Combat/Seene/temp" method="_on_end_turn_button_down"]
+[connection signal="button_down" from="Combat/Seene/Combat ended" to="Combat" method="_on_combat_ended_button_down"]

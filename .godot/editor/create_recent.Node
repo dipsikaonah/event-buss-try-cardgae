@@ -1,0 +1,12 @@
+Node
+Label
+Button
+VBoxContainer
+Panel
+MarginContainer
+Control
+TextureRect
+HBoxContainer
+Sprite2D
+Node2D
+CanvasLayer
